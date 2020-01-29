@@ -13,15 +13,7 @@ app.use(bodyParser.json());     //after parsing convert it to JSON
 
 //post call (CREATE)
 app.post('/addUser', (req, res)=>{
-    var randomId = Math.floor(Math.random()*10000);
-    var data = {
-        id:randomId,
-        name: req.body.name,
-        city: req.body.city,
-        phone: req.body.phone,
-        active: true
-    }
-    db.collection(collectionName).insert(data, (err, result)=>{
+    db.collection(collectionName).insert(req.body, (err, result)=>{
         if(err){
             res.status(401).send('Error occured while inserting record to database');
         }else{
@@ -32,15 +24,7 @@ app.post('/addUser', (req, res)=>{
 
 //Get call (READ)
 app.get('/user', (req, res) =>{
-    var query = {};
-    if(req.query.id && req.query.name){
-        query = {'id': parseInt(req.query.id), 'name': req.query.name, 'active': true}
-    }else if(req.query.id){
-        query = {'id': parseInt(req.query.id), 'active': true}
-    }else{
-        query = {'active': true}
-    }
-    db.collection(collectionName).find(query).toArray((err, result) =>{
+    db.collection(collectionName).find({}).toArray((err, result) =>{
         if(err){
             res.status(401).send('Error fetching data from database')
         }else{
@@ -56,8 +40,7 @@ app.put('/updateUser', (req, res) =>{
             id: req.body.id,
             name: req.body.name,
             city: req.body.city,
-            phone: req.body.phone,
-            active: req.body.active
+            phone: req.body.phone
         }
     }
     // ,{
@@ -71,24 +54,6 @@ app.put('/updateUser', (req, res) =>{
         }
     })
 });
-
-//Soft Delete call (DELETE)
-app.put('/softDeleteUser', (req, res)=>{
-    db.collection(collectionName).findOneAndUpdate({'id':req.body.id},{
-        $set:{
-            name: req.body.name,
-            city: req.body.city,
-            phone: req.body.phone,
-            active: false
-        }
-    }, (err, result)=>{
-        if(err){
-            res.status(401).send('Error Soft Deleting the record');
-        }else{
-            res.send('Record Soft Deleted Successfully');
-        }
-    })
-})
 
 //Delete call (DELETE)
 app.delete('/deleteUser', (req, res)=>{
